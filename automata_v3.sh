@@ -14,6 +14,7 @@ RESET="\033[0m"
 
 
 URL=$1
+# Replace these with your Github and Shodan API tokens
 shodanToken="<YOURSHODANTOKEN>"
 gitToken="<YOURGITHUBTOKEN>"
 
