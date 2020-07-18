@@ -1,7 +1,7 @@
 #!/bin/bash
 
 apt update
-apt install wget curl git tar gzip nmap jq unzip tmux zsh build-essential -y
+apt install wget curl git tar gzip nmap jq unzip tmux python3-pip chromium-browser build-essential -y
 mkdir /root/tools
 cd /root/tools
 
@@ -20,6 +20,9 @@ rm CHANGELOG.md
 rm LICENSE
 rm README.md
 rm ffuf_1.0.2_linux_amd64.tar.gz
+
+wget https://github.com/incogbyte/shosubgo/releases/download/1.1/shosubgo_linux_1_1
+chmod +x shosubgo_linux_1_1
 
 wget https://github.com/tomnomnom/httprobe/releases/download/v0.1.2/httprobe-linux-amd64-0.1.2.tgz
 tar xvf httprobe-linux-amd64-0.1.2.tgz
@@ -52,9 +55,9 @@ rm bat_0.15.4_amd64.deb
 
 wget https://github.com/junegunn/fzf/archive/0.20.0.zip
 unzip 0.20.0.zip
-WORKDIR /root/fzf-0.20.0
+cd /root/fzf-0.20.0
 bash ./install --all
-WORKDIR /root/
+cd /root/
 rm 0.20.0.zip
 
 wget https://github.com/lc/gau/releases/download/v1.0.2/gau_1.0.2_linux_amd64.tar.gz
@@ -63,19 +66,20 @@ rm gau_1.0.2_linux_amd64.tar.gz
 rm LICENSE
 rm README.md
 
+git clone https://github.com/gwen001/github-search.git /root/tools/github-search
+pip3 install -r /root/tools/github-search/requirements2.txt
 
+
+# Wordlists
 git clone https://github.com/danielmiessler/SecLists.git /root/tools/wordlists/seclists
+wget https://raw.githubusercontent.com/BBerastegui/fresh-dns-servers/master/resolvers.txt -O /root/tools/wordlists/resolvers.txt
 
-wget https://github.com/BBerastegui/fresh-dns-servers/blob/master/resolvers.txt -O /root/tools/wordlists/resolvers.txt
 
 # Environment
 mkdir /root/.tmux
 wget https://raw.githubusercontent.com/bull-sec/DotFiles/master/.tmux.conf-digi -O /root/.tmux.conf
 cd /root/
 ln -s /root/.tmux.conf
-
-#git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
-#wget https://raw.githubusercontent.com/bull-sec/DotFiles/master/.zshrc-digi -O /root/.zshrc
 
 wget https://raw.githubusercontent.com/bull-sec/DotFiles/master/.bashrc -O /root/.bashrc
 
@@ -86,8 +90,5 @@ cd /root/fzf-0.20.0
 bash ./install --all
 cd /root/
 rm 0.20.0.zip
-
-#wget https://raw.githubusercontent.com/bull-sec/DotFiles/master/.passwd-digi
-#mv .passwd-digi /etc/passwd
 
 echo "Happy Hacking!" 
