@@ -10,24 +10,24 @@ RED="\033[1;31m"
 GREEN="\033[1;32m"
 BLUE="\033[1;36m"
 YELLOW="\033[1;33m"
+CYAN="\033[1;35m"
 RESET="\033[0m"
 
+gitToken="<YOURTOKENHERE>"
+shodanToken="<YOURTOKENHERE>"
 
 URL=$1
-# Replace these with your Github and Shodan API tokens
-shodanToken="<YOURSHODANTOKEN>"
-gitToken="<YOURGITHUBTOKEN>"
 
-# Usage                                                    
-display_usage() {                                          
-    echo "Usage: ./automata.sh target.com"                                      
-}                                                          
+# Usage
+display_usage() {
+    echo "Usage: ./automata.sh target.com"
+}
 
-if [ $# -le 0 ]                                                                                                        
-then                                                       
-    display_usage                              
-    exit 1                                     
-fi 
+if [ $# -le 0 ]
+then
+    display_usage
+    exit 1
+fi
 
 
 setupEnvironment(){
@@ -40,9 +40,16 @@ setupEnvironment(){
 
 banner(){
     clear
+    echo -e "${CYAN}"
+    echo "
+░█▀▀█ █░░█ ▀▀█▀▀ █▀▀█ █▀▄▀█ █▀▀█ ▀▀█▀▀ █▀▀█ 　 ▀█░█▀ █▀▀█ ░ █▀▀█ 
+▒█▄▄█ █░░█ ░░█░░ █░░█ █░▀░█ █▄▄█ ░░█░░ █▄▄█ 　 ░█▄█░ █▄▀█ ▄ ░░▀▄ 
+▒█░▒█ ░▀▀▀ ░░▀░░ ▀▀▀▀ ▀░░░▀ ▀░░▀ ░░▀░░ ▀░░▀ 　 ░░▀░░ █▄▄█ █ █▄▄█"
+    echo -e "${RESET}"
+
     echo -e "\n"
-    echo -e "${RED}AUTOMATA v2${RESET} by ${GREEN}@bullsecSecurity${RESET}"
-    echo -e "Target: ${RED}$URL${RESET}"
+    echo -e "${RED}AUTOMATA v0.3${RESET} by ${GREEN}@bullsecSecurity${RESET}"
+    echo -e "\nTarget: ${RED}$URL${RESET}"
 }
 
 
@@ -93,22 +100,101 @@ takeScreenshots(){
 }
 
 
-cleanUp(){
-    rm 1
-    rm 2
-    mv gowitness.db $URL.db
-    rm apps.json
+spiderEndpoints(){
+    echo -e "${RED}--==[ Spidering All Discovered Endpoints ]==--${RESET}"
+    echo -e "${GREEN}Hosts to scan: $(cat scans/$URL.live_hosts.txt | wc -l) ${RESET}"
+    for x in $(cat scans/$URL.live_hosts.txt);do
+        gospider -s $x -o scans/endpoints/
+    done
 }
 
 
-setupEnvironment
-banner
-enumSubs
-combineDomains
-getActiveHosts
-checkTechStack
-takeScreenshots
-cleanUp
-echo -e "${RED}Thanks for playing!${RESET}"
+doReport(){
+    echo -e "${RED}--==[ Generating Report Contents ]==--${RESET}"
+    sleep 1
+    echo -e "${BLUE}"
+    echo -e "Files generated: $(ls scans/ | wc -l)"
+    echo -e "${RESET}"
+    read -p "Press enter to continue"
+    sleep 1
+}
 
 
+passiveScan(){
+    enumSubs
+    combineDomains
+    doReport
+}
+
+
+noScreenshots(){
+    enumSubs
+    combineDomains
+    getActiveHosts
+    checkTechStack
+    doReport
+}
+
+
+withScreenshots(){
+    enumSubs
+    combineDomains
+    getActiveHosts
+    checkTechStack
+    takeScreenshots
+    doReport
+}
+
+
+hazeDer(){
+    enumSubs
+    combineDomains
+    getActiveHosts
+    checkTechStack
+    takeScreenshots
+    spiderEndpoints
+    doReport
+}
+
+
+justSpider(){
+    spiderEndpoints
+    doReport
+}
+
+
+justTechStack(){
+    checkTechStack
+    doReport
+}
+
+
+main_loop(){
+    banner
+    setupEnvironment
+    echo -e "${GREEN}"
+    echo "1. Passive Scan"
+    echo "2. Full Scan (No Screenshots)"
+    echo "3. Full Scan (With Screenshots)"
+    echo "4. Full Scan + Spidering"
+    echo "5. Just Spidering"
+    echo "6. Just Check Tech Stack"
+    echo -e "7. Exit\n ${RESET}" 
+    local choice
+    read -p "Enter choice [ 1 - 7] " choice
+    case $choice in
+        1) passiveScan ;;
+        2) noScreenshots ;;
+        3) withScreenshots ;;
+        4) hazeDer ;;
+        5) justSpider ;;
+        6) justTechStack ;;
+        7) echo -e "${GREEN}Thanks for playing!${RESET}" && rm 1 && rm 2 && exit 0;;
+        *) echo -e "${RED}Error...${STD}" && sleep 2
+    esac
+}
+
+
+while true; do
+    main_loop
+done
