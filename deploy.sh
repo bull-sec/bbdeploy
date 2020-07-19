@@ -91,4 +91,6 @@ bash ./install --all
 cd /root/
 rm 0.20.0.zip
 
+git clone https://raw.githubusercontent.com/bull-sec/bbdeploy/master/automata_v3.sh -o /root/automata.sh
+
 echo "Happy Hacking!" 
